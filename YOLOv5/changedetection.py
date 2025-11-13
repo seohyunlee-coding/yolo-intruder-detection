@@ -40,18 +40,24 @@ class ChangeDetection:
             self.token = ''
 
     def add(self, names, detected_current, save_dir, image):
-        self.title = ''
-        self.text = ''
-        change_flag = 0  # 변화 감지 플래그
-        i = 0
-        while i < len(self.result_prev):
+        # Identify newly appeared classes (transition 0 -> 1)
+        newly_added = []
+        for i in range(min(len(self.result_prev), len(detected_current))):
             if self.result_prev[i] == 0 and detected_current[i] == 1:
-                change_flag = 1
-                self.title = names[i]
-                self.text += names[i] + ", "
-            i += 1
+                newly_added.append(names[i])
+
+        # Update stored detection state
         self.result_prev = detected_current[:]  # 객체 검출 상태 저장
-        if change_flag == 1:
+
+        # If any new object appeared, prepare title/text and send
+        if newly_added:
+            # Title: comma-joined newly added class names
+            self.title = ", ".join(newly_added)
+
+            # Text: include all classes currently detected in this frame
+            current_detected = [names[i] for i, v in enumerate(detected_current) if v == 1 and i < len(names)]
+            self.text = ", ".join(current_detected)
+
             self.send(save_dir, image)
 
     def send(self, save_dir, image):
