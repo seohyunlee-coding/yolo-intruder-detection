@@ -10,33 +10,55 @@ _LOG = logging.getLogger(__name__)
 class ChangeDetection:
     result_prev = []
     HOST = 'http://127.0.0.1:8000'
-    username = 'new'
-    password = 'mynewblog'
+    # align credentials with PhotoViewer app
+    username = 'admin'
+    password = 'myblog1008'
     token = ''
     title = ''
     text = ''
 
+    def get_token(self, force_refresh: bool = False) -> str:
+        """Obtain token: prefer environment `BLOG_API_TOKEN`, else request remote token.
+        If force_refresh True, ignore env and request anew.
+        """
+        # env override
+        if not force_refresh:
+            env = os.environ.get('BLOG_API_TOKEN')
+            if env:
+                return env
+
+        token_url = 'https://cwijiq.pythonanywhere.com/api-token-auth/'
+        # try up to 3 times with increased timeout
+        for attempt in range(3):
+            try:
+                # PhotoViewer sends JSON body
+                res = requests.post(
+                    token_url,
+                    json={'username': self.username, 'password': self.password},
+                    timeout=10,
+                )
+                if res.status_code == 200:
+                    body = res.json()
+                    tok = body.get('token', '')
+                    if tok:
+                        return tok
+                else:
+                    _LOG.warning(f'get_token attempt {attempt+1} returned {res.status_code}: {res.text}')
+            except Exception as e:
+                _LOG.warning(f'get_token attempt {attempt+1} error: {e}')
+        return ''
+
     def __init__(self, names):
         self.result_prev = [0 for i in range(len(names))]
-        # attempt authentication but don't raise to caller
+        # get token (env preferred, else remote)
         try:
-            # token endpoint expects x-www-form-urlencoded body
-            res = requests.post(
-                self.HOST + '/api-token-auth/',
-                data={
-                    'username': self.username,
-                    'password': self.password,
-                },
-                timeout=5,
-            )
-            res.raise_for_status()
-            self.token = res.json().get('token', '')
+            self.token = self.get_token()
             if not self.token:
-                _LOG.warning('Authentication succeeded but no token received')
+                _LOG.warning('No token obtained in constructor')
             print(f"[ChangeDetection] auth token: {self.token!r}")
         except Exception as e:
-            _LOG.warning(f'ChangeDetection auth failed: {e}')
-            print(f"[ChangeDetection] auth failed: {e}")
+            _LOG.warning(f'ChangeDetection auth init failed: {e}')
+            print(f"[ChangeDetection] auth init failed: {e}")
             self.token = ''
 
     def add(self, names, detected_current, save_dir, image):
@@ -91,9 +113,25 @@ class ChangeDetection:
             with open(full_path, 'rb') as f:
                 # include filename and explicit MIME type for the image
                 files = {'image': (full_path.name, f, 'image/jpeg')}
-                res = requests.post(self.HOST + '/api_root/Post/', data=data, files=files, headers=headers, timeout=10)
-                print(f"[ChangeDetection] POST {self.HOST + '/api_root/Post/'} returned {res.status_code}")
+                post_url = 'https://cwijiq.pythonanywhere.com/api_root/Post/'
+                res = requests.post(post_url, data=data, files=files, headers=headers, timeout=10)
+                print(f"[ChangeDetection] POST {post_url} returned {res.status_code}")
                 print(f"[ChangeDetection] response body: {res.text}")
+                # If unauthorized, try refreshing token once and retry
+                if res.status_code == 401:
+                    _LOG.info('POST returned 401 - attempting token refresh and retry')
+                    # refresh token (ignore env)
+                    new_token = self.get_token(force_refresh=True)
+                    if new_token:
+                        self.token = new_token
+                        headers['Authorization'] = f'Token {self.token}'
+                        try:
+                            res.close()
+                        except Exception:
+                            pass
+                        res = requests.post(post_url, data=data, files=files, headers=headers, timeout=10)
+                        print(f"[ChangeDetection] POST retry {post_url} returned {res.status_code}")
+                        print(f"[ChangeDetection] retry response body: {res.text}")
                 try:
                     res.raise_for_status()
                     _LOG.info(f'Post successful: {res.status_code}')
