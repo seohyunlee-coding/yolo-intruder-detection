@@ -1,0 +1,27 @@
+{% extends 'blog/base.html' %}
+{% block content %}
+
+{% if posts %}
+{% for post in posts %}
+<section class="hero">
+  {% if post.image %}
+  <img src="{{ post.image.url }}" alt="{{ post.title }}" class="hero-image">
+  {% else %}
+  <div class="hero-image"
+    style="background:#ddd;height:420px;border-radius:4px;display:flex;align-items:center;justify-content:center;color:#666">
+    이미지 없음
+  </div>
+  {% endif %}
+
+  <div class="hero-overlay">
+    <h2 class="hero-title">{{ post.title }}</h2>
+    <p class="hero-text">{{ post.text|truncatechars:200 }}</p>
+    <p class="hero-date">{{ post.published_date|date:"Y년 n월 j일 g:i A" }}</p>
+  </div>
+</section>
+{% endfor %}
+{% else %}
+<p>포스트가 없습니다.</p>
+{% endif %}
+
+{% endblock %}

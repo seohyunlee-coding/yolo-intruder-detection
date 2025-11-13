@@ -1,0 +1,17 @@
+/build
+# 추가: 안드로이드 앱 모듈에서 무시할 항목
+*.iml
+/.idea/
+/.gradle/
+/local.properties
+*.jks
+*.keystore
+debug.keystore
+keystore.properties
+google-services.json
+.env
+.env.*
+.DS_Store
+/captures
+.externalNativeBuild
+.cxx

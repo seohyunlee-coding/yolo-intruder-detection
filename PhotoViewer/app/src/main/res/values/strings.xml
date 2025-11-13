@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">image blog</string>
+    <string name="btn_sync">동기화</string>
+    <string name="btn_new_post">이미지 게시</string>
+    <string name="placeholder_text">…</string>
+    <string name="toolbar_title">image\nblog</string>
+    <string name="close">닫기</string>
+    <string name="detail_image_desc">상세 이미지</string>
+    <string name="label_body">글 내용</string>
+    <string name="pick_image">이미지 선택</string>
+    <string name="label_title">제목</string>
+    <string name="label_body_short">본문</string>
+    <string name="submit">게시</string>
+    <string name="hint_search">검색어를 입력하세요</string>
+    <string name="cd_search">검색</string>
+</resources>

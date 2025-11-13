@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Web Service Programing blog{% endblock %}</title>
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/blog.css' %}">
+</head>
+
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <h1 class="site-title">Web Service Programing blog</h1>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <small>&copy; {{ now|date:"Y" }} - Image Blog</small>
+    </div>
+  </footer>
+</body>
+
+</html>

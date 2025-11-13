@@ -1,0 +1,15 @@
+{% extends 'blog/base.html' %}
+
+{% block content %}
+<h2>JS 테스트 페이지</h2>
+<p>이 페이지는 `js_test` 뷰의 테스트용입니다. 아래 콘솔을 확인하세요.</p>
+
+<script>
+  console.log('js_test 페이지 로드됨');
+  // 예시: 간단한 DOM 조작
+  const p = document.createElement('p');
+  p.textContent = '현재 시간: ' + new Date().toLocaleString();
+  document.currentScript.parentNode.appendChild(p);
+</script>
+
+{% endblock %}

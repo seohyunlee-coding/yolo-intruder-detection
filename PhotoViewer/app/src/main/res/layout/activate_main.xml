@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
+    tools:context=".MainActivate">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="110dp"
+        android:background="@color/white"
+        android:elevation="0dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <!-- 타이틀 -->
+            <TextView
+                android:id="@+id/toolbar_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/toolbar_title"
+                android:lines="2"
+                android:ellipsize="end"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-black"
+                android:textSize="38sp"
+                android:lineSpacingExtra="-6dp"
+                android:textColor="@color/black"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+
+            <!-- 버튼 그룹 -->
+            <LinearLayout
+                android:id="@+id/button_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginEnd="15dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <!-- 동기화 버튼 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_load"
+                    android:layout_width="wrap_content"
+                    android:layout_height="53dp"
+                    android:onClick="onClickDownload"
+                    android:text="@string/btn_sync"
+                    android:textColor="@color/black"
+                    android:textSize="16sp"
+                    app:backgroundTint="@android:color/white"
+                    app:cornerRadius="10dp"
+                    app:strokeColor="@color/light_gray"
+                    app:strokeWidth="1dp"
+                    android:layout_marginEnd="8dp"
+                    android:elevation="0dp"
+                    app:pressedTranslationZ="4dp"/>
+
+                <!-- 새 글 버튼 -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_save"
+                    android:layout_width="wrap_content"
+                    android:layout_height="53dp"
+                    android:onClick="onClickUpload"
+                    android:text="@string/btn_new_post"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    app:backgroundTint="@color/button_dark"
+                    app:cornerRadius="10dp"
+                    app:strokeColor="@color/button_dark"
+                    app:strokeWidth="0dp"
+                    android:elevation="0dp"
+                    app:pressedTranslationZ="6dp"/>
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.appbar.MaterialToolbar>
+
+    <!-- thin divider under toolbar -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#FFDDDDDD" />
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/placeholder_text"
+        android:textColor="@android:color/black"
+        android:textSize="14sp"
+        android:paddingTop="20dp"
+        android:paddingBottom="12dp"
+        android:paddingStart="13dp"
+        android:paddingEnd="13dp" />
+
+    <!-- 검색창 추가: 텍스트 입력 + 검색 버튼 -->
+    <LinearLayout
+        android:id="@+id/search_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:paddingStart="12dp"
+        android:paddingEnd="12dp"
+        android:layout_marginBottom="8dp"
+        android:gravity="center_vertical">
+
+        <EditText
+            android:id="@+id/etSearch"
+            android:layout_width="0dp"
+            android:layout_height="44dp"
+            android:layout_weight="1"
+            android:hint="@string/hint_search"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:autofillHints="none"
+            android:background="@drawable/search_edit_bg" />
+
+        <ImageButton
+            android:id="@+id/btn_search"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginStart="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_menu_search"
+            android:contentDescription="@string/cd_search" />
+
+    </LinearLayout>
+
+    <!-- RecyclerView: 게시글 목록 표시 -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:clipToPadding="false"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp" />
+
+</LinearLayout>
