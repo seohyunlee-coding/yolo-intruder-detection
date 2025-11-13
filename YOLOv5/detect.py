@@ -46,6 +46,7 @@ ROOT = Path(os.path.relpath(ROOT, Path.cwd()))  # relative
 from ultralytics.utils.plotting import Annotator, colors, save_one_box
 
 from models.common import DetectMultiBackend
+from changedetection import ChangeDetection #added
 from utils.dataloaders import IMG_FORMATS, VID_FORMATS, LoadImages, LoadScreenshots, LoadStreams
 from utils.general import (
     LOGGER,
@@ -165,6 +166,12 @@ def run(
     model = DetectMultiBackend(weights, device=device, dnn=dnn, data=data, fp16=half)
     stride, names, pt = model.stride, model.names, model.pt
     imgsz = check_img_size(imgsz, s=stride)  # check image size
+    # initialize ChangeDetection after names are available (may perform network auth)
+    try:
+        cd = ChangeDetection(names)
+    except Exception as e:
+        LOGGER.warning(f"ChangeDetection init failed: {e}")
+        cd = None
 
     # Dataloader
     bs = 1  # batch_size
@@ -182,6 +189,8 @@ def run(
     model.warmup(imgsz=(1 if pt or model.triton else bs, 3, *imgsz))  # warmup
     seen, windows, dt = 0, [], (Profile(device=device), Profile(device=device), Profile(device=device))
     for path, im, im0s, vid_cap, s in dataset:
+        # per-image detected flags
+        detected = [0 for _ in range(len(names))]
         with dt[0]:
             im = torch.from_numpy(im).to(model.device)
             im = im.half() if model.fp16 else im.float()  # uint8 to fp16/32
@@ -252,6 +261,7 @@ def run(
 
                 # Write results
                 for *xyxy, conf, cls in reversed(det):
+                    detected[int(cls)] = 1  # mark class detected for this image
                     c = int(cls)  # integer class
                     label = names[c] if hide_conf else f"{names[c]}"
                     confidence = float(conf)
@@ -277,6 +287,13 @@ def run(
                         annotator.box_label(xyxy, label, color=colors(c, True))
                     if save_crop:
                         save_one_box(xyxy, imc, file=save_dir / "crops" / names[c] / f"{p.stem}.jpg", BGR=True)
+            
+            # notify change detection module (if enabled)
+            if cd is not None:
+                try:
+                    cd.add(names, detected, save_dir, im0)
+                except Exception as e:
+                    LOGGER.warning(f"ChangeDetection.add failed: {e}")
 
             # Stream results
             im0 = annotator.result()
